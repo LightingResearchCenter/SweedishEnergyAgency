@@ -8,7 +8,7 @@ function [SleepStart,SleepEnd,ActualSleep,ActualSleepPercent,...
 
 % Trim Activity and Time to times within the Start and End of the analysis
 % period
-buffer = 10/(60*24); % 10 minute buffer
+buffer = 5/(60*24); % 5 minute buffer
 idx = Time >= (bedTime - buffer) & Time <= (wakeTime + buffer);
 Time = Time(idx);
 try
