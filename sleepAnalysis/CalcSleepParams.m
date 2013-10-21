@@ -33,10 +33,10 @@ Time2 = Time;
 
 % Remove first and last 10 minutes
 last = length(Time2);
-Time2((last-n10):last) = [];
-sleepState10((last-n10):last) = [];
-Time2(1:n10) = [];
-sleepState10(1:n10) = [];
+Time2((last-n5):last) = [];
+sleepState10((last-n5):last) = [];
+Time2(1:n5) = [];
+sleepState10(1:n5) = [];
 
 % Find Sleep Start
 idxStart = find(sleepState10,true,'first');
