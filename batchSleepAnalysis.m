@@ -21,6 +21,8 @@ out = dataset;
 out.Subject = cell(nDays,1);
 out.Season = cell(nDays,1);
 out.Day = cell(nDays,1);
+out.BedTime = cell(nDays,1);
+out.WakeTime = cell(nDays,1);
 % Preallocate sleep parameters
 out.SleepStart = cell(nDays,1);
 out.SleepEnd = cell(nDays,1);
@@ -58,6 +60,9 @@ for i1 = 1:nFiles % Begining of main loop
         out.Subject{i3} = curSubject;
         out.Season{i3} = curSeason;
         out.Day{i3} = tempDay(i2);
+        out.BedTime{i3} = tempBedTime(i2);
+        out.WakeTime{i3} = tempWakeTime(i2);
+        
         try
             [tempSleepStart,tempSleepEnd,...
                 out.ActualSleep{i3},out.ActualSleepPercent{i3},...

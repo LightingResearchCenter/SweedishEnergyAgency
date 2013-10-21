@@ -8,58 +8,59 @@ function [SleepStart,SleepEnd,ActualSleep,ActualSleepPercent,...
 
 % Trim Activity and Time to times within the Start and End of the analysis
 % period
-idx = Time >= bedTime & Time <= wakeTime;
+buffer = 10/(60*24); % 10 minute buffer
+idx = Time >= (bedTime - buffer) & Time <= (wakeTime + buffer);
 Time = Time(idx);
-Activity = gaussian(Activity(idx),4);
+try
+    Activity = gaussian(Activity(idx),4);
+catch
+end
 
 % Find the sleep state
 sleepState = FindSleepState(Activity,'auto',3);
 
-Epoch = etime(datevec(Time(2)),datevec(Time(1))); % Find epoch length
-n = ceil(300/Epoch); % Number of points in a 5 minute interval
+% Find sleep state in a 10 minute window
+Epoch = etime(datevec(Time(2)),datevec(Time(1))); % Find epoch length in seconds
+n10 = ceil(600/Epoch); % Number of points in a 10 minute interval
+n5 = floor((n10)/2);
+notSleepState = ~sleepState;
+activeState10 = notSleepState;
+for i1 = -n5:n5
+    activeState10 = activeState10 + circshift(notSleepState,i1);
+end
+sleepState10 = activeState10 <= 1;
+Time2 = Time;
+
+% Remove first and last 10 minutes
+last = length(Time2);
+Time2((last-n10):last) = [];
+sleepState10((last-n10):last) = [];
+Time2(1:n10) = [];
+sleepState10(1:n10) = [];
 
 % Find Sleep Start
-i = 1+n;
-while i <= length(sleepState)-n
-    if length(find(sleepState(i-n:i+n)==0)) == 1
-        SleepStart = Time(i);
-        break
-    else
-        i = i+1;
-    end
-end
-
-% Set Sleep Start to Bed Time if it was not found
-if exist('SleepStart','var') == 0
-    SleepStart = bedTime + (Time(2) - Time(1));
-end
+idxStart = find(sleepState10,true,'first');
+SleepStart = Time2(idxStart);
 
 % Find Sleep End
-j = length(Time)-n;
-while j > n+1
-    if length(find(sleepState(j-n:j+n)==0)) == 1
-        SleepEnd = Time(j);
-        break
-    else
-        j = j-1;
-    end
-end
+idxEnd = find(sleepState10,true,'last');
+SleepEnd = Time2(idxEnd);
 
-% If Sleep End not found break operation and return zero values
-if exist('SleepEnd','var') == 0
-    SleepEnd = 0;
-    ActualSleep = 0;
-    ActualWake = 0;
-    ActualSleepPercent = 0;
-    ActualWakePercent = 0;
-    SleepEfficiency = 0;
-    Latency = 0;
-    SleepBouts = 0;
-    WakeBouts = 0;
-    MeanSleepBout = 0;
-    MeanWakeBout = 0;
-    return;
-end
+% % If Sleep End not found break operation and return zero values
+% if exist('SleepEnd','var') == 0
+%     SleepEnd = 0;
+%     ActualSleep = 0;
+%     ActualWake = 0;
+%     ActualSleepPercent = 0;
+%     ActualWakePercent = 0;
+%     SleepEfficiency = 0;
+%     Latency = 0;
+%     SleepBouts = 0;
+%     WakeBouts = 0;
+%     MeanSleepBout = 0;
+%     MeanWakeBout = 0;
+%     return;
+% end
 
 
 %% Calculate the parameters
