@@ -32,13 +32,21 @@ switch deviceModel
         error('Unknown deviceModel.');
 end
 
-[IDcal,Rcal,Gcal,Bcal] = importCalibration(calibrationFile);
+if id >0
+    
+    [IDcal,Rcal,Gcal,Bcal] = importCalibration(calibrationFile);
 
-idx = id == IDcal;
+    idx = id == IDcal;
 
-redCalibration      = Rcal(idx);
-greenCalibration	= Gcal(idx);
-blueCalibration     = Bcal(idx);
+    redCalibration      = Rcal(idx);
+    greenCalibration	= Gcal(idx);
+    blueCalibration     = Bcal(idx);
+else
+    redCalibration      = 0;
+    greenCalibration	= 0;
+    blueCalibration     = 0;
+end
+    
 
 %% Allocate Variables
 Variables = struct(...
